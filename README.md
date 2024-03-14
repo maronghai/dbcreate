@@ -4,9 +4,9 @@ Database Schema Design and Modeling Tool
 
 Design Database Schema Without Writing SQL
 
-## DBSPEC
+## DB SPEC
 
-Generate SQL using [dbspec](https://github.com/maronghai/dbspec)
+Generate SQL using [DB SPEC](https://github.com/maronghai/dbspec)
 
 
 ## License
