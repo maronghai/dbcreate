@@ -1,4 +1,4 @@
-# dbcreate
+# DB CREATE
 
 Database Schema Design and Modeling Tool
 
