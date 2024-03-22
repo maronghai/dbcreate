@@ -1,4 +1,4 @@
-const r = /(?<=\n|^)[\$#]\s*\w+|(?<=\n)\w+|(?<=\n\w+\s+)[0-9nNmMtTsS,+=]+|\/\/.*?(?=\n|\s+;)|;.*/g
+const r = /(?<=\n|^)[\$#]\s*\w+|(?<=\n)\w+|(?<=\n\w+\s+)[0-9nNmMtTsS,+=]+|(?:\/\/|--).*?(?=\n|\s+;)|;.*/g
 
 const case01 = () => {
   console.log('case01')
@@ -30,7 +30,7 @@ $ demo
 $ misc
 # user // TABLE OF USER  ; Define a *user* table
 id   n =0 ++ ! // identifier  ; Define a *id* column
-name s
+name s         -- Column *name*
 pin  s100
 avatar S
 
