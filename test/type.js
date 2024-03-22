@@ -49,7 +49,7 @@ update_at t+
 `.trim()
   let match
   while ((match = r.exec(s)) != null) {
-    console.table(match)
+    console.log(match)
   }
 }
 
