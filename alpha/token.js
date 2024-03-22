@@ -7,24 +7,29 @@ id n ++ !  ; define id, auto increment, primary key
 ...        ; define slot
 version N  ; define version, bigint
 
-# user
-name x
+# user // USER
+name x -- NAME
 `
 
 const getTokenType = src => {
-  if ('$' == src[0]) return 'schema'
-  else if ('#' == src[0] && '?' == src[1]) return 'template'
-  else if ('#' == src[0]) return 'table'
-  else if (';' == src[0]) return 'spec_comment'
-  else if ('!' == src) return 'pimary_key'
-  else if ('++' == src) return 'auto_increment'
-  else if (src.startsWith('--') || src.startsWith('//')) return 'sql_comment'
-  else if (src.startsWith('...')) return 'slot'
-  else if (/^(?:\d+|\d+,\d+|[mM]|[nNsS]\d*|t[=+]?)$/.test(src)) return 'type'
+  const [a, b] = src
+  if ('$' == a) return 'schema'
+  if ('#' == a && '?' == b) return 'template'
+  if ('#' == a) return 'table'
+
+  if (';' == a) return 'spec_comment'
+  if ('!' == src) return 'pimary_key'
+  if ('++' == src) return 'auto_increment'
+
+  if (src.startsWith('--') || src.startsWith('//')) return 'sql_comment'
+  if (src.startsWith('...')) return 'slot'
+  if (/^(?:\d+|\d+,\d+|[mM]|[nNsS]\d*|t[=+]?)$/.test(src)) return 'type'
+
   else return 'column'
 }
+
 let match
 while ((match = r.exec(s)) != null) {
   const type = getTokenType(match[0])
-  console.log(match[0], type)
+  console.log(match[0], '->', type)
 }
