@@ -1,12 +1,12 @@
-# DB CREATE
+# DB Create
 
 Database Schema Design and Modeling Tool
 
 Design Database Schema Without Writing SQL
 
-## DB SPEC
+## DB Spec
 
-Generate SQL using [DB SPEC](https://github.com/maronghai/dbspec)
+Generate SQL using [DB Spec](https://github.com/maronghai/dbspec)
 
 ## Tokens
 
