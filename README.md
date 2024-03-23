@@ -22,9 +22,9 @@ Generate SQL using [DB SPEC](https://github.com/maronghai/dbspec)
 ;[^\n]*/g                                           ; spec comment
 ```
 
-## Recent
+## Latest
 
-> alpha/token.js
+[alpha/token.js](https://github.com/maronghai/dbcreate/blob/main/alpha/token.js)
 
 ## License
 
