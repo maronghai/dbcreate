@@ -1,17 +1,27 @@
-const r = /(?<=\n|^)#\?\s*\w*(?=\s)|\.{3}|(?<=\n|^)[\$#]\w*\s+\w+|(?<=\n)\w+|(?<=\n\w+\s+)(?:\d+,\d+|\d+|[mM]|[nNsS]\d*|t[=+]?)|\+{2}|!|(?:\/\/|--).*?(?=\n|\s+;)|;[^\n]*/g
+const r = /(?<=\n|^)#\?[ ]*\w*|\.{3}|(?<=\n|^)[\$#]\w* +\w+|(?<=\n)\w+|(?<=\n\w+ +)(?:\d+,\d+|\d+|[mM]|[nNsS]\d*|t[=+]?)|\+{2}|!|(?:\/\/|--).*?(?=\n|\s+;)|;[^\n]*/g
 
+//? token field (\w+)\s+(\w+)  ; *1 -> field name, *2 -> field type
 const s = `
 $ demo
-; joke
-#? 1  ; define template
+
+; default template
+#?
+id
+
+
+#? 1  ; define template 
+; named template
 id n ++ !  ; define id, auto increment, primary key
 ...        ; define slot
 version N  ; define version, bigint
 
-# role
+
+# role ; role table
+
 id n
 name s
 
+; user table
 # user // USER
 name s -- NAME
 pin s100
@@ -76,8 +86,6 @@ const parseType = src => {
 
 }
 
-const template = {}
-
 tokens.forEach((token, index) => {
   switch (token.type) {
     case 'schema': token.sql = 'CREATE DATABASE `' + /\$\s+(\w+)/.exec(token.src)[1] + '`;'
@@ -96,7 +104,7 @@ tokens.forEach((token, index) => {
       break;
     case 'spec_comment': token.sql = '-- ' + token.src.substring(1)
       break
-    case 'template': token.sql = ''
+    case 'template': token.templateName = /#\?\s*(\w+)/.exec(token.src)?.[1] || '$'
       break;
     case 'slot': token.sql = ''
       break;
@@ -104,15 +112,65 @@ tokens.forEach((token, index) => {
 })
 
 console.table(tokens)
+const parseColumn = tokens => tokens.reduce((r, token) => {
+  if (['column', 'slot'].includes(token.type) && r.isParsing) {
+    r.current.sql = r.current.tokens.map(token => token.sql).join(' ') + '\n'
+    r.result.push(r.current)
 
-const sql = tokens.reduce((r, token) => {
-  let result = token.sql
-  if ('table' == token.type) {
-
+    r.current = null
+    r.isParsing = false
   }
-  return r + result
+
+  if ('column' == token.type) {
+    r.current = { tokens: [token], sql: '' }
+    r.isParsing = true
+  }
+
+  if (['type', 'auto_increment', 'primary_key', 'sql_comment'].includes(token.type)) {
+    r.current.tokens.push(token)
+  }
+
+  return r
 }, {
-  parsingTable: false,
-  parsingColumn: false,
-  parsingTemplate: false
+  result: [],
+  isParsing: false,
+  current: null
 })
+
+// schemas []
+const schemas = tokens.filter(token => 'schema' == token.type)
+console.table(schemas)
+
+// templates {}
+const templates = tokens.reduce((r, token) => {
+
+  if (['schema', 'table', 'template'].includes(token.type) && r.isParsingTemplate) {
+    console.log('template,stop')
+    r.current.sql = parseColumn(r.current.tokens).result.map(column => column.sql).join(' ')
+    r.result[r.current.templateName] = r.current
+
+    r.current = null
+    r.isParsingTemplate = false
+  }
+
+  if ('template' == token.type) {
+    console.log('template,start')
+    r.isParsingTemplate = true
+    r.current = { templateName: token.templateName, tokens: [], sql: '' }
+  }
+
+  if (r.isParsingTemplate) {
+    r.current.tokens.push(token)
+  }
+
+  return r
+}, {
+  isParsingTemplate: false,
+  current: null,
+
+  isParsingColumn: false,
+  currentColumn: null,
+
+  result: {}
+}).result
+console.log(templates)
