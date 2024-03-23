@@ -4,10 +4,6 @@ Database Schema Design and Modeling Tool
 
 Design Database Schema Without Writing SQL
 
-## DB Spec
-
-Generate SQL using [DB Spec](https://github.com/maronghai/dbspec)
-
 ## Tokens
 
 ```
@@ -25,6 +21,10 @@ Generate SQL using [DB Spec](https://github.com/maronghai/dbspec)
 ## Latest
 
 [alpha/token.js](https://github.com/maronghai/dbcreate/blob/main/alpha/token.js)
+
+## Echosystem
+
+1. [DB Spec](https://github.com/maronghai/dbspec)
 
 ## License
 
