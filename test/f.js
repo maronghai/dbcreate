@@ -105,10 +105,11 @@ const commitTable = (ctx, index) => {
   tableComment = tableComment ? `\nCOMMENT = '` + tableComment + `'` : ''
 
   let lines = parsing.map(line => line.sql)
+  const [create, ...columns] = lines
 
   const template = ctx.template[parsing[0].template]
   if (template) {
-    lines = [lines[0], ...template.render(lines.filter((_, index) => index > 0))]
+    lines = [create, ...template.render(columns)]
   }
 
   const table = {
@@ -116,7 +117,7 @@ const commitTable = (ctx, index) => {
     _index: parsing.at(-1).index,
     type: 'table',
     src: parsing.map(line => line.src),
-    sql: lines.join('\n') + '\n);\n',
+    sql: [create, ...columns.map(column => '  ' + column)].join('\n') + '\n);\n',
     lines
   }
 
@@ -230,7 +231,7 @@ const parse = src => {
     template: {}
   })
 
-  console.log(step1.blocks)
+  console.log(step1.blocks.map(block => block.sql).join('\n'))
 
 
   // console.log(step1.template)
