@@ -8,12 +8,13 @@ status 1
 
 $ demo  ; demo schema
 
-; default template
+
 #?
+; default template
 id
 
 
-#? 1  ; define template 
+#? 1  ; define template
 ; named template
 id n ++ ! -- ID int ai pk  ; define id column, auto increment, primary key
 ...              ; define slot
@@ -104,20 +105,18 @@ const commitTable = (ctx, index) => {
   let tableComment = parsing[0].sqlComment
   tableComment = tableComment ? `\nCOMMENT = '` + tableComment + `'` : ''
 
-  let lines = parsing.map(line => line.sql)
+  const lines = parsing.map(line => line.sql)
   const [create, ...columns] = lines
 
   const template = ctx.template[parsing[0].template]
-  if (template) {
-    lines = [create, ...template.render(columns)]
-  }
+  const renderedColumns = template ? template.render(columns) : columns;
 
   const table = {
     index: parsing[0].index,
     _index: parsing.at(-1).index,
     type: 'table',
     src: parsing.map(line => line.src),
-    sql: [create, ...columns.map(column => '  ' + column)].join('\n') + '\n);\n',
+    sql: [create, ...renderedColumns.map(column => '  ' + column)].join('\n') + '\n);\n',
     lines
   }
 
