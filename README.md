@@ -20,8 +20,8 @@ Design Database Schema Without Writing SQL
 
 ## Latest
 
-1. [alpha/token.js](https://github.com/maronghai/dbcreate/blob/main/alpha/token.js)
-2. [test/f.js](test/f.js)
+1. Alpha: [alpha/parser.js](https://github.com/maronghai/dbcreate/blob/main/alpha/token.js)
+2. Test: [test/f.js](test/f.js)
 
 ## Echosystem
 
