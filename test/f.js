@@ -22,11 +22,10 @@ version N        ; define version column, bigint
 
 # role  ; a role table
 
-id n
 name s
 
 
-# user // USER
+#1 user // USER
 ; user table
 
 name s -- NAME
@@ -35,10 +34,11 @@ status 1
 
 balancex 20,6
 balancem M
-balance  m
+balance  m -- m  ; m
 `
 
 const __spec_comment = src => src ? '  -- ' + src : ''
+
 const types = {
   n: 'int',
   N: 'bigint',
@@ -50,7 +50,10 @@ const types = {
   't=': 'datetime DEFAULT CURRENT_TIMESTAMP',
   't+': 'datetime DEFAULT CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP',
 }
+
 const __type = src => {
+  if (!src) return ' varchar'
+
   let result = types[src]
   if (result) return ' ' + result
 
@@ -62,30 +65,71 @@ const __type = src => {
   return ''
 }
 
-const commitTemplate = ctx => {
+// ---
 
+const commitTemplate = ctx => {
+  const parsing = ctx.parsing
+  const slotIndex = parsing.findIndex(line => 'slot' == line.type)
+  const lines = parsing.map(line => line.sql)
+  const { before, after } = lines.reduce((r, line, index) => {
+    if (!line || line.startsWith('--')) {
+      return r
+    }
+
+    index < slotIndex ? r.before.push(line) : r.after.push(line)
+    return r
+  },
+    {
+      before: [],
+      after: []
+    }
+  )
+
+  ctx.template[ctx.parsing[0].template] = {
+    lines,
+    slotIndex,
+    before,
+    after,
+    render(table) {
+      if (-1 == this.slotIndex) return [...this.after, table]
+      else return [...before, ...table, ...after]
+    }
+  }
+
+  ctx.parsing = null
 }
+
 const commitTable = (ctx, index) => {
   const parsing = ctx.parsing
   let tableComment = parsing[0].sqlComment
   tableComment = tableComment ? `\nCOMMENT = '` + tableComment + `'` : ''
 
-  const lines = parsing.map(line => line.sql)
-  ctx.blocks.push({
+  let lines = parsing.map(line => line.sql)
+
+  const template = ctx.template[parsing[0].template]
+  if (template) {
+    lines = [lines[0], ...template.render(lines.filter((_, index) => index > 0))]
+  }
+
+  const table = {
     index: parsing[0].index,
-    _index: parsing[parsing.length - 1].index,
+    _index: parsing.at(-1).index,
     type: 'table',
     src: parsing.map(line => line.src),
     sql: lines.join('\n') + '\n);\n',
     lines
-  })
+  }
+
+  ctx.blocks.push(table)
   ctx.parsing = null
 }
 
 const commitParsing = (ctx, index) => {
-  if ('table' == ctx.parsing[0].type) commitTable(ctx)
-  // if ('template' == ctx.parsing[0].type) commitTemplate(ctx)
+  if ('table' == ctx.parsing[0].type) return commitTable(ctx)
+  if ('template' == ctx.parsing[0].type) return commitTemplate(ctx)
 }
+
+// ---
 
 const parse = src => {
   const lines = src.split(/\n/)
@@ -101,7 +145,7 @@ const parse = src => {
         index,
         src: line,
         type: 'spec_comment',
-        sql: '--' + line.substring(1) + '\n'
+        sql: '--' + line.substring(1)
       }
 
       if (r.parsing) {
@@ -120,7 +164,29 @@ const parse = src => {
         index,
         src: line,
         type: 'spec_comment',
-        sql: 'CREATE DATABASE `' + schema + '`' + __spec_comment(specComment) + ';'
+        sql: 'CREATE DATABASE `' + schema + '`;' + __spec_comment(specComment)
+      })
+    }
+
+    if ('#' == a && '?' == b) {
+      const token = /^#\?\s*(\w+)?(?:\s*;\s*(.*))?/.exec(line)
+      const [, template, specComment] = token
+      r.parsing = [{
+        index,
+        src: line,
+        type: 'template',
+        sql: '',
+        template: template || '',
+        specComment
+      }]
+    }
+
+    if (line.startsWith('...') && r.parsing) {
+      r.parsing.push({
+        index,
+        src: line,
+        type: 'slot',
+        sql: ''
       })
     }
 
@@ -153,16 +219,21 @@ const parse = src => {
         index,
         src: line,
         type: 'column',
-        sql: column + __type(type)
+        sql: column + __type(type) + (ai ? ' AUTO_INCREMENT' : '') + (pk ? ' PRIMARY KEY' : '') + (sqlComment ? ` COMMENT '${sqlComment}'` : '') + __spec_comment(specComment)
       })
     }
 
     return r
   }, {
     parsing: null,
-    blocks: []
+    blocks: [],
+    template: {}
   })
+
   console.log(step1.blocks)
+
+
+  // console.log(step1.template)
 }
 
 parse(s)
