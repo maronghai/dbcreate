@@ -237,3 +237,5 @@ const parse = src => {
 }
 
 parse(s)
+
+export default parse
