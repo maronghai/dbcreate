@@ -35,7 +35,7 @@ status 1
 
 balancex 20,6
 balancem M
-balance  m -- m  ; m
+balance  m -- m ; m2  ;; m
 `
 
 const __spec_comment = src => src ? '  -- ' + src : ''
@@ -206,7 +206,10 @@ const parse = src => {
     }
 
     if (a && /\w/.test(a) && r.parsing) {
-      const token = /^(\w+)\s*(\S+)?\s*(\+\+)?\s*(!)?\s*(?:(?:\/\/|--)\s*(.*?)(?=\s+;|$))?(?:\s*;\s*(.*))?/.exec(line)
+      const isCommentConflict = line.indexOf(';') != line.lastIndexOf(';')
+      const token = isCommentConflict ?
+        /^(\w+)\s*(\S+)?\s*(\+\+)?\s*(!)?\s*(?:(?:\/\/|--)\s*(.*?)(?=\s+;;|$))?(?:\s*;;\s*(.*))?/.exec(line)
+        : /^(\w+)\s*(\S+)?\s*(\+\+)?\s*(!)?\s*(?:(?:\/\/|--)\s*(.*?)(?=\s+;|$))?(?:\s*;\s*(.*))?/.exec(line)
       if (token == null) {
         console.error('E: ', index, line)
         return r
@@ -237,5 +240,3 @@ const parse = src => {
 }
 
 parse(s)
-
-export default parse

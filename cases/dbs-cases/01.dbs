@@ -1,0 +1,11 @@
+$
+$db1
+$ db2
+$  db3
+$ db4  ; spec comment
+
+%
+%1
+% 2
+%  3
+%    4  ; spec comment
