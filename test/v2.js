@@ -1,7 +1,7 @@
 const fs = require('fs')
-const { reg } = require('../zz')
+const { re } = require('../zz')
 
-const r = reg('cases/zz-cases/01.txt')
+const r = re('cases/zz-cases/01.txt')
 
 const parse = src => {
     let match

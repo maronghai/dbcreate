@@ -9,7 +9,7 @@ function zz(file) {
   return code
 }
 
-function reg(file, flag = 'g') {
+function re(file, flag = 'g') {
   const code = zz(file)
   return new RegExp(code, flag)
 }
@@ -19,5 +19,5 @@ function reg(file, flag = 'g') {
 
 module.exports = {
   zz,
-  reg
+  re
 }
