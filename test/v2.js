@@ -1,16 +1,7 @@
 const fs = require('fs')
+const { reg } = require('../zz')
 
-let r
-
-const zz = fs.readFileSync('cases/zz-cases/01.txt', { encoding: 'utf8' })
-console.log('zz', zz)
-
-const zzz = zz.replaceAll(/\n/g, '')
-console.log('zzz', zzz)
-
-r = new RegExp(zzz, 'g')
-
-r.exec()
+const r = reg('cases/zz-cases/01.txt')
 
 const parse = src => {
     let match
